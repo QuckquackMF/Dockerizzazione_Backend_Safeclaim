@@ -1,0 +1,101 @@
+version: "3.9"
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_assicurazioni
+    env_file: .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: pythonuser
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: gestione_assicurazioni
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+    networks:
+      - fakeclaim_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx_gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - log_reg
+      - veicoli
+      - polizze
+      - sinistri_user
+      - periti
+      - init
+    networks:
+      - fakeclaim_net
+
+  log_reg:
+    build: ./log_reg
+    ports: ["6000:6000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+  veicoli:
+    build: ./veicoli
+    ports: ["7000:7000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+  polizze:
+    build: ./polizze
+    ports: ["8000:8000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+  sinistri_user:
+    build: ./sinistri_user
+    ports: ["9000:9000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+  periti:
+    build: ./periti
+    ports: ["5000:5000"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+  init:
+    build: ./init
+    ports: ["9500:9500"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file: .env
+    networks: [fakeclaim_net]
+
+volumes:
+  mysql_data:
+
+networks:
+  fakeclaim_net:
