@@ -23,23 +23,6 @@ services:
     networks:
       - fakeclaim_net
 
-  nginx:
-    image: nginx:alpine
-    container_name: nginx_gateway
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - log_reg
-      - veicoli
-      - polizze
-      - sinistri_user
-      - periti
-      - init
-    networks:
-      - fakeclaim_net
-
   log_reg:
     build: ./log_reg
     ports: ["6000:6000"]
@@ -93,6 +76,34 @@ services:
         condition: service_healthy
     env_file: .env
     networks: [fakeclaim_net]
+
+  nginx_gateway:
+    image: nginx:alpine
+    container_name: nginx_gateway
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - log_reg
+      - veicoli
+      - polizze
+      - sinistri_user
+      - periti
+      - init
+    networks:
+      - fakeclaim_net
+
+  frontend:
+    build:
+      context: ../../Dockerizzazione_Frontend_Safeclaim/Frontend-5F
+    container_name: frontend_safeclaim
+    ports:
+      - "4200:4200"
+    depends_on:
+      - nginx_gateway
+    networks:
+      - fakeclaim_net
 
 volumes:
   mysql_data:
