@@ -129,19 +129,7 @@ def get_tutti_i_sinistri():
         return jsonify({"error": str(e)}), 500
 
 # UPDATE: Aggiunta immagine all'ultimo sinistro creato
-@app.route("/sinistro/<sinistro_id>", methods=["GET"])
-def get_sinistro(sinistro_id):
-    try:
-        from bson.objectid import ObjectId
-        sinistro = sinistri_col.find_one({"_id": ObjectId(sinistro_id)})
-        if not sinistro:
-            return jsonify({"error": "Sinistro non trovato"}), 404
-        sinistro["_id"] = str(sinistro["_id"])
-        return jsonify(sinistro), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/sinistro/ultimo/immagini",, methods=['POST'])
+@app.route('/sinistro/ultimo/immagini', methods=['POST'])
 def aggiungi_immagine_ultimo():
     data = request.json
     if not data or 'immagine_base64' not in data:
