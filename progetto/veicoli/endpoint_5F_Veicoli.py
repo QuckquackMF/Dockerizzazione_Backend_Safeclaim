@@ -57,6 +57,20 @@ def get_veicoli(id=None):
     finally:
         if conn: conn.close()
 
+@app.route('/veicoli-utente/<int:automobilista_id>', methods=['GET'])
+def get_veicoli_utente(automobilista_id):
+    conn = None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM Veicolo WHERE automobilista_id = %s", (automobilista_id,))
+        veicoli = cursor.fetchall()
+        return jsonify(veicoli), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        if conn: conn.close()
+
 if __name__ == '__main__':
     # Mantenuta porta 6000 come da tua ultima riga
     app.run(host='0.0.0.0', port=7000, debug=True)
