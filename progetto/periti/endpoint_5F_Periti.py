@@ -228,27 +228,6 @@ def assegna_intervento(id_sinistro, id_perito, id_perizia):
         "nuovo_stato": "in_riparazione"
     }), 200
 
-
-@app.route("/perito/<perito_id>/perizie", methods=["GET"])
-def get_perizie_perito(perito_id):
-    try:
-        perizie = list(col_perizie.find({"perito_id": perito_id}))
-        for p in perizie:
-            p["_id"] = str(p["_id"])
-        return jsonify(perizie), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/perito/<perito_id>/pratiche", methods=["GET"])
-def get_pratiche_perito(perito_id):
-    try:
-        pratiche = list(col_pratiche.find({"perito_id": perito_id}))
-        for p in pratiche:
-            p["_id"] = str(p["_id"])
-        return jsonify(pratiche), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 if __name__ == "__main__":
     # Avvio del server sulla porta 5000
     app.run(host="0.0.0.0", port=5000, debug=True)
