@@ -61,7 +61,7 @@ def analizza_immagine_ai(sinistro_id: str, image_url: str):
             api_name="/chat_joycaption"
         )
         print(f"✅ [AI] Analisi completata per sinistro {sinistro_id}")
-        col_sinistri.update_one(
+        sinistri_col.update_one(
             {"_id": ObjectId(sinistro_id)},
             {"$set": {
                 "analisi_ai": {
@@ -75,7 +75,7 @@ def analizza_immagine_ai(sinistro_id: str, image_url: str):
     except Exception as e:
         print(f"[AI] Errore analisi sinistro {sinistro_id}: {e}")
         try:
-            col_sinistri.update_one(
+            sinistri_col.update_one(
                 {"_id": ObjectId(sinistro_id)},
                 {"$set": {
                     "analisi_ai": {
@@ -251,13 +251,13 @@ def aggiungi_immagine(sinistro_id):
     if not data or 'immagine_base64' not in data:
         return jsonify({"error": "Dati immagine mancanti"}), 400
     try:
-        sinistro = col_sinistri.find_one({"_id": ObjectId(sinistro_id)})
+        sinistro = sinistri_col.find_one({"_id": ObjectId(sinistro_id)})
         if not sinistro:
             return jsonify({"error": "Sinistro non trovato"}), 404
         print(f"☁️  Caricamento immagine su Cloudinary per sinistro {sinistro_id}...")
         info_cloudinary = carica_immagine(data['immagine_base64'], sinistro_id)
         print(f"✅ Immagine caricata: {info_cloudinary['secure_url']}")
-        col_sinistri.update_one(
+        sinistri_col.update_one(
             {"_id": ObjectId(sinistro_id)},
             {
                 "$push": {"immagini": {
@@ -292,7 +292,7 @@ def get_analisi_ai(sinistro_id):
     if not ObjectId.is_valid(sinistro_id):
         return jsonify({"error": "ID non valido"}), 400
     try:
-        sinistro = col_sinistri.find_one(
+        sinistro = sinistri_col.find_one(
             {"_id": ObjectId(sinistro_id)},
             {"analisi_ai": 1}
         )
